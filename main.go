@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"time"
 
 	"github.com/gdamore/tcell"
 )
@@ -46,8 +45,6 @@ func main() {
 		}
 	}()
 
-	ticker := time.NewTicker(TimestepRender)
-	defer ticker.Stop()
 loop:
 	for {
 		select {
@@ -58,8 +55,7 @@ loop:
 					break loop
 				}
 			}
-		case <-ticker.C:
-			display := <-interpreter.displaych
+		case display := <-interpreter.displaych:
 			render(screen, display)
 			screen.Show()
 		}

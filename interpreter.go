@@ -5,56 +5,12 @@ import (
 )
 
 const (
-	// TimestepRender is the display update frequency.
-	TimestepRender = time.Second / 60
-
 	// TimestepSimulation is the clock speed of the Chip-8 emulator.
-	TimestepSimulation = 10 * time.Millisecond
+	TimestepSimulation = 2 * time.Millisecond
 
 	// TimestepBatch is the time between executing batches of instructions.
 	TimestepBatch = 100 * time.Millisecond
 )
-
-// Opcodes for standard Chip-8 instructions
-const (
-	OpCLS_00E0 opcode = iota
-	OpRET_00EE
-	OpSYS_0nnn
-	OpJP_1nnn
-	OpCALL_2nnn
-	OpSE_3xkk
-	OpSNE_4xkk
-	OpSE_5xy0
-	OpLD_6xkk
-	OpADD_7xkk
-	OpLD_8xy0
-	OpOR_8xy1
-	OpAND_8xy2
-	OpXOR_8xy3
-	OpADD_8xy4
-	OpSUB_8xy5
-	OpSHR_8xy6
-	OpSUBN_8xy7
-	OpSHL_8xyE
-	OpSNE_9xy0
-	OpLD_Annn
-	OpJP_Bnnn
-	OpRND_Cxkk
-	OpDRW_Dxyn
-	OpSKP_Ex9E
-	OpSKNP_ExA1
-	OpLD_Fx07
-	OpLD_Fx0A
-	OpLD_Fx15
-	OpLD_Fx18
-	OpADD_Fx1E
-	OpLD_Fx29
-	OpLD_Fx33
-	OpLD_Fx55
-	OpLD_Fx65
-)
-
-type opcode uint8
 
 // keypad is the interface for a Chip-8 keypad.
 type keypad interface {
@@ -101,51 +57,6 @@ type Interpreter struct {
 	stopch chan struct{}
 }
 
-type instruction struct {
-	opcode opcode
-	addr   uint16
-	nibble uint8
-	x      uint8
-	y      uint8
-	byte   uint8
-}
-
-func instrAt(data []uint8, i int) (instr instruction) {
-	hi, lo := data[i], data[i+1]
-	op := hi & 0xf0 >> 4
-	switch op {
-	case 0:
-		switch lo {
-		case 0xE0:
-			instr.opcode = OpCLS_00E0
-		case 0xEE:
-			instr.opcode = OpRET_00EE
-		default:
-			instr.opcode = OpSYS_0nnn
-			instr.addr = uint16(hi&0x0f)<<8 + uint16(lo)
-		}
-	case 1:
-		instr.opcode = OpJP_1nnn
-		instr.addr = uint16(hi&0x0f)<<8 + uint16(lo)
-	case 2:
-		instr.opcode = OpCALL_2nnn
-		instr.addr = uint16(hi&0x0f)<<8 + uint16(lo)
-	case 3:
-		instr.opcode = OpSE_3xkk
-		instr.x = hi & 0x0f
-		instr.byte = lo
-	case 4:
-		instr.opcode = OpSNE_4xkk
-		instr.x = hi & 0x0f
-		instr.byte = lo
-	case 5:
-		instr.opcode = OpSE_5xy0
-		instr.x = hi & 0x0f
-		instr.y = lo & 0xf0 >> 4
-	}
-	return
-}
-
 func (i *Interpreter) init() {
 	i.stopch = make(chan struct{})
 	i.displaych = make(chan [32][64]uint8)
@@ -177,15 +88,19 @@ func (i *Interpreter) Run() {
 
 func (i *Interpreter) step() {
 	// mock instructions which just move a cursor across the screen
-	x0 := i.registers[0]
-	x1 := (x0 + 1) % 64
-	i.display[0][x0] = 0
-	i.display[0][x1] = 1
-	i.registers[0] = x1
+	i.registers[1]++
+	if i.registers[1] == 0 {
+		x0 := i.registers[0]
+		x1 := (x0 + 1) % 64
+		i.display[0][x0] = 0
+		i.display[0][x1] = 1
+		i.registers[0] = x1
 
-	// non blocking send to the display
-	select {
-	case i.displaych <- i.display:
-	default:
+		// non blocking send to the display
+		select {
+		case i.displaych <- i.display:
+		default:
+		}
 	}
+
 }
