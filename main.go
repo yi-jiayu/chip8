@@ -2,28 +2,42 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"github.com/gdamore/tcell"
 )
 
+func render(screen tcell.Screen, display [32][64]uint8) {
+	for y, row := range display {
+		for x, col := range row {
+			var c rune
+			if col == 1 {
+				c = tcell.RuneBlock
+			} else {
+				c = ' '
+			}
+			screen.SetContent(x, y, c, nil, 0)
+		}
+	}
+}
+
 func main() {
-	log.Println("Creating new screen")
 	screen, err := tcell.NewScreen()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Println("Initialising screen")
 	err = screen.Init()
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer screen.Fini()
 
-	screen.SetContent(0, 0, 'H', nil, 0)
+	interpreter := new(Interpreter)
+	go interpreter.Run()
 
 	screen.Show()
 
-	log.Println("Polling for events")
 	events := make(chan tcell.Event)
 	go func() {
 		for {
@@ -31,16 +45,23 @@ func main() {
 			events <- ev
 		}
 	}()
+
+	ticker := time.NewTicker(TimestepRender)
+	defer ticker.Stop()
 loop:
-	for ev := range events {
-		switch ev := ev.(type) {
-		case *tcell.EventKey:
-			if ev.Rune() == 'q' {
-				break loop
+	for {
+		select {
+		case ev := <-events:
+			if key, ok := ev.(*tcell.EventKey); ok {
+				if key.Rune() == 'q' {
+					interpreter.stopch <- struct{}{}
+					break loop
+				}
 			}
-			log.Println(ev.Name(), ev.Key())
-		default:
-			log.Println(ev)
+		case <-ticker.C:
+			display := <-interpreter.displaych
+			render(screen, display)
+			screen.Show()
 		}
 	}
 }

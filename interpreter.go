@@ -1,10 +1,23 @@
 package main
 
-type Opcode uint8
+import (
+	"time"
+)
+
+const (
+	// TimestepRender is the display update frequency.
+	TimestepRender = time.Second / 60
+
+	// TimestepSimulation is the clock speed of the Chip-8 emulator.
+	TimestepSimulation = 10 * time.Millisecond
+
+	// TimestepBatch is the time between executing batches of instructions.
+	TimestepBatch = 100 * time.Millisecond
+)
 
 // Opcodes for standard Chip-8 instructions
 const (
-	OpCLS_00E0 Opcode = iota
+	OpCLS_00E0 opcode = iota
 	OpRET_00EE
 	OpSYS_0nnn
 	OpJP_1nnn
@@ -41,6 +54,8 @@ const (
 	OpLD_Fx65
 )
 
+type opcode uint8
+
 // keypad is the interface for a Chip-8 keypad.
 type keypad interface {
 	// IsPressed returns true if key is currently pressed.
@@ -76,14 +91,18 @@ type Interpreter struct {
 	stack [16]uint8
 
 	// The original implementation of the Chip-8 language used a 64x32-pixel monochrome display.
-	display [64][32]rune
+	display [32][64]uint8
+
+	displaych chan [32][64]uint8
 
 	// The computers which originally used the Chip-8 Language had a 16-key hexadecimal keypad.
 	keypad keypad
+
+	stopch chan struct{}
 }
 
 type instruction struct {
-	opcode Opcode
+	opcode opcode
 	addr   uint16
 	nibble uint8
 	x      uint8
@@ -125,4 +144,48 @@ func instrAt(data []uint8, i int) (instr instruction) {
 		instr.y = lo & 0xf0 >> 4
 	}
 	return
+}
+
+func (i *Interpreter) init() {
+	i.stopch = make(chan struct{})
+	i.displaych = make(chan [32][64]uint8)
+}
+
+func (i *Interpreter) Run() {
+	i.init()
+
+	currentTime := time.Now()
+	var accum time.Duration
+
+	ticker := time.NewTicker(TimestepBatch)
+	defer ticker.Stop()
+	for {
+		select {
+		case newTime := <-ticker.C:
+			frameTime := newTime.Sub(currentTime)
+			currentTime = newTime
+			accum += frameTime
+			for accum >= TimestepSimulation {
+				i.step()
+				accum -= TimestepSimulation
+			}
+		case <-i.stopch:
+			return
+		}
+	}
+}
+
+func (i *Interpreter) step() {
+	// mock instructions which just move a cursor across the screen
+	x0 := i.registers[0]
+	x1 := (x0 + 1) % 64
+	i.display[0][x0] = 0
+	i.display[0][x1] = 1
+	i.registers[0] = x1
+
+	// non blocking send to the display
+	select {
+	case i.displaych <- i.display:
+	default:
+	}
 }
