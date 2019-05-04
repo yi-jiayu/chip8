@@ -2,8 +2,8 @@ package main
 
 // keypad is the interface for a Chip-8 keypad.
 type keypad interface {
-	// GetKey returns the currently pressed keypad key, or -1 if no key is currently pressed.
-	GetKey() int8
+	// IsPressed returns true if key is currently pressed.
+	IsPressed(key uint8) bool
 }
 
 // Interpreter contains the current state of the Chip-8 interpreter as well as its connected hardware.
