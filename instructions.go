@@ -164,15 +164,14 @@ func ADD_8xy4(ip *Interpreter, instr instruction) {
 // Set Vx = Vx - Vy, set VF = NOT borrow.
 //
 // If Vx > Vy, then VF is set to 1, otherwise 0. Then Vy is subtracted from Vx, and the results stored in Vx.
+//
+// Implementation note: Shouldn't VF be set to 1 when Vx == Vy as well?
 func SUB_8xy5(ip *Interpreter, instr instruction) {
 	x := instr.x()
 	y := instr.y()
-	if ip.registers[x] > ip.registers[y] {
-		ip.registers[VF] = 1
-	} else {
-		ip.registers[VF] = 0
-	}
-	ip.registers[x] -= ip.registers[y]
+	diff, borrow := bits.Sub(uint(ip.registers[x]), uint(ip.registers[y]), 0)
+	ip.registers[x] = uint8(diff)
+	ip.registers[VF] = 1 - uint8(borrow)
 	ip.pc++
 }
 

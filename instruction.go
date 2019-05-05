@@ -44,7 +44,8 @@ const (
 type opcode uint8
 
 type instruction struct {
-	lo, hi uint8
+	hi uint8
+	lo uint8
 }
 
 func (instr instruction) addr() uint16 {
