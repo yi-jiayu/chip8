@@ -38,7 +38,8 @@ type Interpreter struct {
 	sp uint8
 
 	// The stack is an array of 16 16-bit values.
-	stack [16]uint8
+	stack    [16]uint16
+	stackptr int
 
 	// The original implementation of the Chip-8 language used a 64x32-pixel monochrome display.
 	display [32][64]uint8
