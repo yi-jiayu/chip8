@@ -15,6 +15,15 @@ func (regs registers) set(idx int, val uint8) registers {
 	return regs
 }
 
+type display struct {
+	d [32][8]uint8
+}
+
+func (d display) set(idx int, val [8]uint8) display {
+	d.d[idx] = val
+	return d
+}
+
 func newInstructionAddr(addr uint16) instruction {
 	return instruction{
 		hi: uint8(addr >> 8),
@@ -120,6 +129,152 @@ func TestSHL_8xyE(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			SHL_8xyE(&tt.ip, tt.instr)
+			if diff := cmp.Diff(tt.expected, tt.ip, cmp.AllowUnexported(Interpreter{})); diff != "" {
+				t.Error(diff)
+			}
+		})
+	}
+}
+
+func TestDRW_Dxyn(t *testing.T) {
+	tests := []struct {
+		name     string
+		ip       Interpreter
+		instr    instruction
+		expected Interpreter
+	}{
+		{
+			name: "3-byte sprite, aligned, no wrap, no collision",
+			ip: Interpreter{
+				// sprite for "0"
+				memory: [4096]uint8{
+					0xF0,
+					0x90,
+					0x90,
+					0x90,
+					0xF0,
+				},
+			},
+			instr: newInstructionXYN(0, 1, 3),
+			expected: Interpreter{
+				memory: [4096]uint8{
+					0xF0,
+					0x90,
+					0x90,
+					0x90,
+					0xF0,
+				},
+				display: [32][8]uint8{
+					{0xF0},
+					{0x90},
+					{0x90},
+				},
+				pc: 1,
+			},
+		},
+		{
+			name: "5-byte sprite, aligned, no wrap, no collision",
+			ip: Interpreter{
+				// sprite for "0"
+				memory: [4096]uint8{
+					0xF0,
+					0x90,
+					0x90,
+					0x90,
+					0xF0,
+				},
+			},
+			instr: newInstructionXYN(0, 1, 5),
+			expected: Interpreter{
+				memory: [4096]uint8{
+					0xF0,
+					0x90,
+					0x90,
+					0x90,
+					0xF0,
+				},
+				display: [32][8]uint8{
+					{0xF0},
+					{0x90},
+					{0x90},
+					{0x90},
+					{0xF0},
+				},
+				pc: 1,
+			},
+		},
+		{
+			name: "5-byte sprite, aligned, no wrap, collision",
+			ip: Interpreter{
+				// sprite for "0"
+				memory: [4096]uint8{
+					0xF0,
+					0x90,
+					0x90,
+					0x90,
+					0xF0,
+				},
+				display: [32][8]uint8{
+					{0xFF},
+				},
+			},
+			instr: newInstructionXYN(0, 1, 5),
+			expected: Interpreter{
+				memory: [4096]uint8{
+					0xF0,
+					0x90,
+					0x90,
+					0x90,
+					0xF0,
+				},
+				registers: registers{}.set(VF, 1).r,
+				display: [32][8]uint8{
+					{0x0F},
+					{0x90},
+					{0x90},
+					{0x90},
+					{0xF0},
+				},
+				pc: 1,
+			},
+		},
+		{
+			name: "5-byte sprite, aligned, wraps vertically, no collision",
+			ip: Interpreter{
+				// sprite for "0"
+				memory: [4096]uint8{
+					0xF0,
+					0x90,
+					0x90,
+					0x90,
+					0xF0,
+				},
+				registers: [16]uint8{0, 30},
+			},
+			instr: newInstructionXYN(0, 1, 5),
+			expected: Interpreter{
+				memory: [4096]uint8{
+					0xF0,
+					0x90,
+					0x90,
+					0x90,
+					0xF0,
+				},
+				registers: [16]uint8{0, 30},
+				display: display{[32][8]uint8{
+					{0x90},
+					{0x90},
+					{0xF0},
+				}}.
+					set(30, [8]uint8{0xF0}).
+					set(31, [8]uint8{0x90}).d,
+				pc: 1,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			DRW_Dxyn(&tt.ip, tt.instr)
 			if diff := cmp.Diff(tt.expected, tt.ip, cmp.AllowUnexported(Interpreter{})); diff != "" {
 				t.Error(diff)
 			}

@@ -259,7 +259,23 @@ func RND_Cxkk(ip *Interpreter, instr instruction) {
 // information on XOR, and section 2.4, Display, for more information on the
 // Chip-8 screen and sprites.
 func DRW_Dxyn(ip *Interpreter, instr instruction) {
-	// TODO: implement me
+	n := instr.nibble()
+	x := ip.registers[instr.x()]
+	y := ip.registers[instr.y()]
+	sprite := ip.memory[ip.i : ip.i+uint16(n)]
+	var collision uint8
+	for i := uint8(0); i < n; i++ {
+		rowIdx := (y + i) % 32
+		colGrpIdx := x >> 3
+		collision |= ip.display[rowIdx][colGrpIdx] & sprite[i]
+		ip.display[rowIdx][colGrpIdx] ^= sprite[i]
+	}
+	if collision > 0 {
+		ip.registers[VF] = 1
+	} else {
+		ip.registers[VF] = 0
+	}
+	ip.pc++
 }
 
 // Ex9E - SKP Vx
