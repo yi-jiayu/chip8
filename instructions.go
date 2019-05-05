@@ -320,7 +320,8 @@ func LD_Fx0A(ip *Interpreter, instr instruction) {
 //
 // DT is set equal to the value of Vx.
 func LD_Fx15(ip *Interpreter, instr instruction) {
-	// TODO: implement me
+	ip.dtset <- ip.registers[instr.x()]
+	ip.pc++
 }
 
 // Fx18 - LD ST, Vx
@@ -328,7 +329,8 @@ func LD_Fx15(ip *Interpreter, instr instruction) {
 //
 // ST is set equal to the value of Vx.
 func LD_Fx18(ip *Interpreter, instr instruction) {
-	// TODO: implement me
+	ip.stset <- ip.registers[instr.x()]
+	ip.pc++
 }
 
 // Fx1E - ADD I, Vx
@@ -336,7 +338,8 @@ func LD_Fx18(ip *Interpreter, instr instruction) {
 //
 // The values of I and Vx are added, and the results are stored in I.
 func ADD_Fx1E(ip *Interpreter, instr instruction) {
-	// TODO: implement me
+	ip.i += uint16(ip.registers[instr.x()])
+	ip.pc++
 }
 
 // Fx29 - LD F, Vx
