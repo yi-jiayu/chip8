@@ -192,12 +192,9 @@ func SHR_8xy6(ip *Interpreter, instr instruction) {
 func SUBN_8xy7(ip *Interpreter, instr instruction) {
 	x := instr.x()
 	y := instr.y()
-	if ip.registers[y] > ip.registers[x] {
-		ip.registers[VF] = 1
-	} else {
-		ip.registers[VF] = 0
-	}
-	ip.registers[x] -= ip.registers[y] - ip.registers[x]
+	diff, borrow := bits.Sub(uint(ip.registers[y]), uint(ip.registers[x]), 0)
+	ip.registers[x] = uint8(diff)
+	ip.registers[VF] = 1 - uint8(borrow)
 	ip.pc++
 }
 
