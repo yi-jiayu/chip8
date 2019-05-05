@@ -263,49 +263,95 @@ func RND_Cxkk(ip *Interpreter, instr instruction) {
 // information on XOR, and section 2.4, Display, for more information on the
 // Chip-8 screen and sprites.
 func DRW_Dxyn(ip *Interpreter, instr instruction) {
-
+	// TODO: implement me
 }
 
+// Ex9E - SKP Vx
+// Skip next instruction if key with the value of Vx is pressed.
+//
+// Checks the keyboard, and if the key corresponding to the value of Vx is currently in the down position, PC is increased by 2.
 func SKP_Ex9E(ip *Interpreter, instr instruction) {
-
+	// TODO: implement me
 }
 
+// ExA1 - SKNP Vx
+// Skip next instruction if key with the value of Vx is not pressed.
+//
+// Checks the keyboard, and if the key corresponding to the value of Vx is currently in the up position, PC is increased by 2.
 func SKNP_ExA1(ip *Interpreter, instr instruction) {
-
+	// TODO: implement me
 }
 
+// Fx07 - LD Vx, DT
+// Set Vx = delay timer value.
+//
+// The value of DT is placed into Vx.
 func LD_Fx07(ip *Interpreter, instr instruction) {
-
+	// TODO: implement me
 }
 
+// Fx0A - LD Vx, K
+// Wait for a key press, store the value of the key in Vx.
+//
+// All execution stops until a key is pressed, then the value of that key is stored in Vx.
 func LD_Fx0A(ip *Interpreter, instr instruction) {
-
+	// TODO: implement me
 }
 
+// Fx15 - LD DT, Vx
+// Set delay timer = Vx.
+//
+// DT is set equal to the value of Vx.
 func LD_Fx15(ip *Interpreter, instr instruction) {
-
+	// TODO: implement me
 }
 
+// Fx18 - LD ST, Vx
+// Set sound timer = Vx.
+//
+// ST is set equal to the value of Vx.
 func LD_Fx18(ip *Interpreter, instr instruction) {
-
+	// TODO: implement me
 }
 
+// Fx1E - ADD I, Vx
+// Set I = I + Vx.
+//
+// The values of I and Vx are added, and the results are stored in I.
 func ADD_Fx1E(ip *Interpreter, instr instruction) {
-
+	// TODO: implement me
 }
 
+// Fx29 - LD F, Vx
+// Set I = location of sprite for digit Vx.
+//
+// The value of I is set to the location for the hexadecimal sprite corresponding to the value of Vx.
+// See section 2.4, Display, for more information on the Chip-8 hexadecimal font.
 func LD_Fx29(ip *Interpreter, instr instruction) {
-
+	// TODO: implement me
 }
 
+// Fx33 - LD B, Vx
+// Store BCD representation of Vx in memory locations I, I+1, and I+2.
+//
+// The interpreter takes the decimal value of Vx, and places the hundreds digit in memory at location in I,
+// the tens digit at location I+1, and the ones digit at location I+2.
 func LD_Fx33(ip *Interpreter, instr instruction) {
-
+	// TODO: implement me
 }
 
+// Fx55 - LD [I], Vx
+// Store registers V0 through Vx in memory starting at location I.
+//
+// The interpreter copies the values of registers V0 through Vx into memory, starting at the address in I.
 func LD_Fx55(ip *Interpreter, instr instruction) {
-
+	// TODO: implement me
 }
 
+// Fx65 - LD Vx, [I]
+// Read registers V0 through Vx from memory starting at location I.
+//
+// The interpreter reads values from memory starting at location I into registers V0 through Vx.
 func LD_Fx65(ip *Interpreter, instr instruction) {
-
+	// TODO: implement me
 }
