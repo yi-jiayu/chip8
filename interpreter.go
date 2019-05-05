@@ -24,12 +24,12 @@ type Interpreter struct {
 	i uint16
 
 	// Chip-8 also has two special purpose 8-bit registers, for the delay and sound timers.
-	dt uint8
-	st uint8
-
-	// dtch and stch are used for setting the delay timer register and sound timer register respectively.
-	dtch chan uint8
-	stch chan uint8
+	// dtget and stget are used for getting the current value of the delay and sound timers.
+	// dtset and stset are used for setting the current value of the delay and sound timers.
+	dtget <-chan uint8
+	stget <-chan uint8
+	dtset chan<- uint8
+	stset chan<- uint8
 
 	// The program counter (PC) should be 16-bit, and is used to store the currently executing address.
 	pc uint16
@@ -43,6 +43,7 @@ type Interpreter struct {
 	// The original implementation of the Chip-8 language used a 64x32-pixel monochrome display.
 	display [32][64]uint8
 
+	// The current state of the display is sent to displaych whenever it is drawn.
 	displaych chan<- [32][64]uint8
 
 	// The computers which originally used the Chip-8 Language had a 16-key hexadecimal keypad.
