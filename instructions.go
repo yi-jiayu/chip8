@@ -242,7 +242,9 @@ func JP_Bnnn(ip *Interpreter, instr instruction) {
 // The interpreter generates a random number from 0 to 255, which is then ANDed with the value kk.
 // The results are stored in Vx. See instruction 8xy2 for more information on AND.
 func RND_Cxkk(ip *Interpreter, instr instruction) {
-
+	r := ip.rand()
+	ip.registers[instr.x()] = r & instr.byte()
+	ip.pc++
 }
 
 func DRW_Dxyn(ip *Interpreter, instr instruction) {

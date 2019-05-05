@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/rand"
 	"time"
 )
 
@@ -114,4 +115,10 @@ func (ip *Interpreter) step() {
 
 		ip.render()
 	}
+}
+
+func (ip *Interpreter) rand() uint8 {
+	b := make([]byte, 1)
+	rand.Read(b)
+	return b[0]
 }
