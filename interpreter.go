@@ -43,10 +43,10 @@ type Interpreter struct {
 	stackptr int
 
 	// The original implementation of the Chip-8 language used a 64x32-pixel monochrome display.
-	display [32][64]uint8
+	display [32][8]uint8
 
 	// The current state of the display is sent to displaych whenever it is drawn.
-	displaych chan<- [32][64]uint8
+	displaych chan<- [32][8]uint8
 
 	// The computers which originally used the Chip-8 Language had a 16-key hexadecimal keypad.
 	// Each receive will return a bitmask of the currently pressed keys.
@@ -57,11 +57,11 @@ type Interpreter struct {
 
 func (ip *Interpreter) init() {
 	ip.stopch = make(chan struct{})
-	ip.displaych = make(chan [32][64]uint8)
+	ip.displaych = make(chan [32][8]uint8)
 }
 
 // New returns a new Chip-8 interpreter.
-func New(keypad <-chan uint16, display chan<- [32][64]uint8) *Interpreter {
+func New(keypad <-chan uint16, display chan<- [32][8]uint8) *Interpreter {
 	return &Interpreter{
 		keypadch:  keypad,
 		displaych: display,
@@ -105,14 +105,25 @@ func (ip *Interpreter) render() {
 }
 func (ip *Interpreter) step() {
 	// mock instructions which just move a cursor across the screen
-	ip.registers[1]++
-	if ip.registers[1] == 0 {
-		x0 := ip.registers[0]
-		x1 := (x0 + 1) % 64
-		ip.display[0][x0] = 0
-		ip.display[0][x1] = 1
-		ip.registers[0] = x1
-
+	if ip.pc == 0 {
+		ip.registers[1] = 7
+		ip.registers[2] = 1
+		ip.pc = 1
+	}
+	ip.registers[0]++
+	if ip.registers[0] == 0 {
+		section := ip.registers[1]
+		val := ip.registers[2]
+		if val != 1 {
+			val >>= 1
+		} else {
+			ip.display[0][section] = 0
+			section = (section + 1) % 8
+			ip.registers[1] = section
+			val = 0x80
+		}
+		ip.registers[2] = val
+		ip.display[0][section] = val
 		ip.render()
 	}
 }

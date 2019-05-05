@@ -3,26 +3,39 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/gdamore/tcell"
 )
 
-func render(screen tcell.Screen, display [32][64]uint8) {
+func render(screen tcell.Screen, display [32][8]uint8) {
 	for y, row := range display {
-		for x, col := range row {
-			var c rune
-			if col == 1 {
-				c = tcell.RuneBlock
-			} else {
-				c = ' '
+		for x0, col := range row {
+			for x1 := 0; x1 < 8; x1++ {
+				var c rune
+				var mask uint8 = 1 << (7 - uint(x1))
+				if col&mask > 0 {
+					c = tcell.RuneBlock
+				} else {
+					c = ' '
+				}
+				x := x0*8 + x1
+				screen.SetContent(x, y, c, nil, 0)
 			}
-			screen.SetContent(x, y, c, nil, 0)
 		}
 	}
 }
 
 func resizeTerminal(w, h int) {
 	fmt.Printf("\033[8;%d;%dt", h, w)
+}
+
+func init() {
+	f, err := os.Create("chip8.log")
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.SetOutput(f)
 }
 
 func main() {
@@ -42,7 +55,7 @@ func main() {
 	resizeTerminal(64, 32)
 	defer resizeTerminal(oldw, oldh)
 
-	display := make(chan [32][64]uint8)
+	display := make(chan [32][8]uint8)
 
 	keymap := NewKeymap(DvorakLayout)
 	keych, keypad := NewKeypad(keymap)
