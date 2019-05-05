@@ -1,5 +1,13 @@
 package main
 
+import (
+	"time"
+)
+
+const (
+	KeyResetInterval = 50 * time.Millisecond
+)
+
 var (
 	QwertyLayout = "x123qweasdzc4rfv"
 	DvorakLayout = "q123',.aoe;j4puk"
@@ -42,10 +50,14 @@ func NewKeypad(keymap Keymap) (chan<- rune, <-chan uint16) {
 	var state uint16
 	keych := make(chan rune)
 	statech := make(chan uint16)
+	ticker := time.NewTicker(KeyResetInterval)
 
 	go func() {
 		for {
 			select {
+			case <-ticker.C:
+				// reset pressed keys every KeyResetInterval
+				state &= 0
 			case key := <-keych:
 				if mask, ok := keymap[key]; ok {
 					state &= mask
