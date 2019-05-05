@@ -12,12 +12,6 @@ const (
 	TimestepBatch = 100 * time.Millisecond
 )
 
-// keypad is the interface for a Chip-8 keypad.
-type keypad interface {
-	// IsPressed returns true if key is currently pressed.
-	IsPressed(key uint8) bool
-}
-
 // Interpreter contains the current state of the Chip-8 interpreter as well as its connected hardware.
 type Interpreter struct {
 	// The Chip-8 language is capable of accessing up to 4KB (4,096 bytes) of RAM.
@@ -52,7 +46,8 @@ type Interpreter struct {
 	displaych chan [32][64]uint8
 
 	// The computers which originally used the Chip-8 Language had a 16-key hexadecimal keypad.
-	keypad keypad
+	// Each receive will return a bitmask of the currently pressed keys.
+	keypadch chan uint16
 
 	stopch chan struct{}
 }
