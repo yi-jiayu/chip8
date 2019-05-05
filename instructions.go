@@ -1,5 +1,9 @@
 package main
 
+import (
+	"math/bits"
+)
+
 const VF = 0xF
 
 // 00E0 - CLS
@@ -271,7 +275,13 @@ func DRW_Dxyn(ip *Interpreter, instr instruction) {
 //
 // Checks the keyboard, and if the key corresponding to the value of Vx is currently in the down position, PC is increased by 2.
 func SKP_Ex9E(ip *Interpreter, instr instruction) {
-	// TODO: implement me
+	key := ip.registers[instr.x()]
+	var mask uint16 = 1 << key
+	keypad := <-ip.keypadch
+	if keypad&mask > 0 {
+		ip.pc++
+	}
+	ip.pc++
 }
 
 // ExA1 - SKNP Vx
@@ -279,7 +289,13 @@ func SKP_Ex9E(ip *Interpreter, instr instruction) {
 //
 // Checks the keyboard, and if the key corresponding to the value of Vx is currently in the up position, PC is increased by 2.
 func SKNP_ExA1(ip *Interpreter, instr instruction) {
-	// TODO: implement me
+	key := ip.registers[instr.x()]
+	var mask uint16 = 1 << key
+	keypad := <-ip.keypadch
+	if keypad&mask == 0 {
+		ip.pc++
+	}
+	ip.pc++
 }
 
 // Fx07 - LD Vx, DT
@@ -287,7 +303,8 @@ func SKNP_ExA1(ip *Interpreter, instr instruction) {
 //
 // The value of DT is placed into Vx.
 func LD_Fx07(ip *Interpreter, instr instruction) {
-	// TODO: implement me
+	ip.registers[instr.x()] = <-ip.dtget
+	ip.pc++
 }
 
 // Fx0A - LD Vx, K
@@ -295,7 +312,12 @@ func LD_Fx07(ip *Interpreter, instr instruction) {
 //
 // All execution stops until a key is pressed, then the value of that key is stored in Vx.
 func LD_Fx0A(ip *Interpreter, instr instruction) {
-	// TODO: implement me
+	keypad := <-ip.keypadch
+	zeros := bits.LeadingZeros16(keypad)
+	if zeros < 16 {
+		ip.registers[instr.x()] = uint8(0xF - zeros)
+		ip.pc++
+	}
 }
 
 // Fx15 - LD DT, Vx
