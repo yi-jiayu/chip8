@@ -5,7 +5,11 @@ const VF = 0xF
 // 00E0 - CLS
 // Clear the display.
 func CLS_00E0(ip *Interpreter, instr instruction) {
-	ip.display = [32][8]uint8{}
+	for i := 0; i < 32; i++ {
+		for j := 0; j < 8; j++ {
+			ip.display[i][j] = 0
+		}
+	}
 	ip.pc++
 }
 
