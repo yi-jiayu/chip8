@@ -304,6 +304,42 @@ func TestDRW_Dxyn(t *testing.T) {
 				pc: 1,
 			},
 		},
+		{
+			name: "5-byte sprite, not aligned, no wrap, collision",
+			ip: Interpreter{
+				// sprite for "0"
+				memory: [4096]uint8{
+					0xF0,
+					0x90,
+					0x90,
+					0x90,
+					0xF0,
+				},
+				registers: [16]uint8{6},
+				display: [32][8]uint8{
+					{0xFF},
+				},
+			},
+			instr: newInstructionXYN(0, 1, 5),
+			expected: Interpreter{
+				memory: [4096]uint8{
+					0xF0,
+					0x90,
+					0x90,
+					0x90,
+					0xF0,
+				},
+				registers: registers{r: [16]uint8{6}}.set(VF, 1).r,
+				display: [32][8]uint8{
+					{0xFC, 0xC0},
+					{0x2, 0x40},
+					{0x2, 0x40},
+					{0x2, 0x40},
+					{0x3, 0xC0},
+				},
+				pc: 1,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
