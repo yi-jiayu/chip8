@@ -154,13 +154,9 @@ func XOR_8xy3(ip *Interpreter, instr instruction) {
 // otherwise 0. Only the lowest 8 bits of the result are kept, and stored in Vx.
 func ADD_8xy4(ip *Interpreter, instr instruction) {
 	x := instr.x()
-	sum := uint16(ip.registers[x]) + uint16(ip.registers[instr.y()])
+	sum, carry := bits.Add(uint(ip.registers[x]), uint(ip.registers[instr.y()]), 0)
 	ip.registers[x] = uint8(sum)
-	if sum > 255 {
-		ip.registers[VF] = 1
-	} else {
-		ip.registers[VF] = 0
-	}
+	ip.registers[VF] = uint8(carry)
 	ip.pc++
 }
 
