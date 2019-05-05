@@ -93,6 +93,13 @@ func (ip *Interpreter) Stop() {
 	ip.stopch <- struct{}{}
 }
 
+func (ip *Interpreter) render() {
+	// non blocking send to the display
+	select {
+	case ip.displaych <- ip.display:
+	default:
+	}
+}
 func (ip *Interpreter) step() {
 	// mock instructions which just move a cursor across the screen
 	ip.registers[1]++
@@ -103,11 +110,6 @@ func (ip *Interpreter) step() {
 		ip.display[0][x1] = 1
 		ip.registers[0] = x1
 
-		// non blocking send to the display
-		select {
-		case ip.displaych <- ip.display:
-		default:
-		}
+		ip.render()
 	}
-
 }
