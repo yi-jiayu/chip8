@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/gdamore/tcell"
@@ -20,6 +21,10 @@ func render(screen tcell.Screen, display [32][64]uint8) {
 	}
 }
 
+func resizeTerminal(w, h int) {
+	fmt.Printf("\033[8;%d;%dt", h, w)
+}
+
 func main() {
 	screen, err := tcell.NewScreen()
 	if err != nil {
@@ -32,8 +37,12 @@ func main() {
 	}
 	defer screen.Fini()
 
-	interpreter := new(Interpreter)
-	go interpreter.Run()
+	// try to resize terminal
+	oldw, oldh := screen.Size()
+	resizeTerminal(64, 32)
+	defer resizeTerminal(oldw, oldh)
+
+	display := make(chan [32][64]uint8)
 
 	keymap := NewKeymap(DvorakLayout)
 	keych, keypad := NewKeypad(keymap)
