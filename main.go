@@ -35,7 +35,11 @@ func main() {
 	interpreter := new(Interpreter)
 	go interpreter.Run()
 
-	screen.Show()
+	keymap := NewKeymap(DvorakLayout)
+	keych, keypad := NewKeypad(keymap)
+
+	ip := New(keypad, display)
+	go ip.Run()
 
 	events := make(chan tcell.Event)
 	go func() {
@@ -45,17 +49,22 @@ func main() {
 		}
 	}()
 
+	screen.Show()
+
 loop:
 	for {
 		select {
 		case ev := <-events:
 			if key, ok := ev.(*tcell.EventKey); ok {
-				if key.Rune() == 'q' {
-					interpreter.stopch <- struct{}{}
+				if key.Key() == tcell.KeyCtrlC {
+					ip.Stop()
 					break loop
 				}
+				if key.Key() == tcell.KeyRune {
+					keych <- key.Rune()
+				}
 			}
-		case display := <-interpreter.displaych:
+		case display := <-display:
 			render(screen, display)
 			screen.Show()
 		}

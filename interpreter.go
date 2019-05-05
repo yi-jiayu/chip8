@@ -43,22 +43,30 @@ type Interpreter struct {
 	// The original implementation of the Chip-8 language used a 64x32-pixel monochrome display.
 	display [32][64]uint8
 
-	displaych chan [32][64]uint8
+	displaych chan<- [32][64]uint8
 
 	// The computers which originally used the Chip-8 Language had a 16-key hexadecimal keypad.
 	// Each receive will return a bitmask of the currently pressed keys.
-	keypadch chan uint16
+	keypadch <-chan uint16
 
 	stopch chan struct{}
 }
 
-func (i *Interpreter) init() {
-	i.stopch = make(chan struct{})
-	i.displaych = make(chan [32][64]uint8)
+func (ip *Interpreter) init() {
+	ip.stopch = make(chan struct{})
+	ip.displaych = make(chan [32][64]uint8)
 }
 
-func (i *Interpreter) Run() {
-	i.init()
+// New returns a new Chip-8 interpreter.
+func New(keypad <-chan uint16, display chan<- [32][64]uint8) *Interpreter {
+	return &Interpreter{
+		keypadch:  keypad,
+		displaych: display,
+	}
+}
+
+func (ip *Interpreter) Run() {
+	ip.stopch = make(chan struct{})
 
 	currentTime := time.Now()
 	var accum time.Duration
@@ -72,28 +80,32 @@ func (i *Interpreter) Run() {
 			currentTime = newTime
 			accum += frameTime
 			for accum >= TimestepSimulation {
-				i.step()
+				ip.step()
 				accum -= TimestepSimulation
 			}
-		case <-i.stopch:
+		case <-ip.stopch:
 			return
 		}
 	}
 }
 
-func (i *Interpreter) step() {
+func (ip *Interpreter) Stop() {
+	ip.stopch <- struct{}{}
+}
+
+func (ip *Interpreter) step() {
 	// mock instructions which just move a cursor across the screen
-	i.registers[1]++
-	if i.registers[1] == 0 {
-		x0 := i.registers[0]
+	ip.registers[1]++
+	if ip.registers[1] == 0 {
+		x0 := ip.registers[0]
 		x1 := (x0 + 1) % 64
-		i.display[0][x0] = 0
-		i.display[0][x1] = 1
-		i.registers[0] = x1
+		ip.display[0][x0] = 0
+		ip.display[0][x1] = 1
+		ip.registers[0] = x1
 
 		// non blocking send to the display
 		select {
-		case i.displaych <- i.display:
+		case ip.displaych <- ip.display:
 		default:
 		}
 	}
