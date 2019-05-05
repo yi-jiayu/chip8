@@ -265,14 +265,14 @@ func DRW_Dxyn(ip *Interpreter, instr instruction) {
 	sprite := ip.memory[ip.i : ip.i+uint16(n)]
 	var collision uint8
 	for i := uint8(0); i < n; i++ {
-		rowIdx := (y + i) % 32
+		rowIdx := (y + i) & 0x1F
 		colGrpIdx := x >> 3
 		rem := x & 0x7
 		if rem > 0 {
 			collision |= ip.display[rowIdx][colGrpIdx] & (sprite[i] >> rem)
 			ip.display[rowIdx][colGrpIdx] ^= sprite[i] >> rem
-			collision |= ip.display[rowIdx][colGrpIdx+1] & (sprite[i] << (8 - rem))
-			ip.display[rowIdx][colGrpIdx+1] ^= sprite[i] << (8 - rem)
+			collision |= ip.display[rowIdx][(colGrpIdx+1)&0x7] & (sprite[i] << (8 - rem))
+			ip.display[rowIdx][(colGrpIdx+1)&0x7] ^= sprite[i] << (8 - rem)
 		} else {
 			collision |= ip.display[rowIdx][colGrpIdx] & sprite[i]
 			ip.display[rowIdx][colGrpIdx] ^= sprite[i]
