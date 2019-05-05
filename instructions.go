@@ -267,8 +267,16 @@ func DRW_Dxyn(ip *Interpreter, instr instruction) {
 	for i := uint8(0); i < n; i++ {
 		rowIdx := (y + i) % 32
 		colGrpIdx := x >> 3
-		collision |= ip.display[rowIdx][colGrpIdx] & sprite[i]
-		ip.display[rowIdx][colGrpIdx] ^= sprite[i]
+		rem := x & 0x7
+		if rem > 0 {
+			collision |= ip.display[rowIdx][colGrpIdx] & (sprite[i] >> rem)
+			ip.display[rowIdx][colGrpIdx] ^= sprite[i] >> rem
+			collision |= ip.display[rowIdx][colGrpIdx+1] & (sprite[i] << (8 - rem))
+			ip.display[rowIdx][colGrpIdx+1] ^= sprite[i] << (8 - rem)
+		} else {
+			collision |= ip.display[rowIdx][colGrpIdx] & sprite[i]
+			ip.display[rowIdx][colGrpIdx] ^= sprite[i]
+		}
 	}
 	if collision > 0 {
 		ip.registers[VF] = 1
