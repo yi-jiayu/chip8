@@ -384,6 +384,42 @@ func TestDRW_Dxyn(t *testing.T) {
 	}
 }
 
+func TestLD_Fx29(t *testing.T) {
+	tests := []struct {
+		name     string
+		ip       Interpreter
+		instr    instruction
+		expected Interpreter
+	}{
+		{
+			name: "Address of sprite for 0",
+			ip: Interpreter{
+				memory: [4096]uint8{
+					0,
+					0xF0,
+					0x90,
+					0x90,
+					0x90,
+					0xF0,
+				},
+			},
+			instr: newInstructionXYN(0, 0, 0),
+			expected: Interpreter{
+				registers: [16]uint8{0xE0},
+				pc:        1,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			SHL_8xyE(&tt.ip, tt.instr)
+			if diff := cmp.Diff(tt.expected, tt.ip, cmp.AllowUnexported(Interpreter{})); diff != "" {
+				t.Error(diff)
+			}
+		})
+	}
+}
+
 func BenchmarkADD_8xy4(b *testing.B) {
 	ip := new(Interpreter)
 	instr := instruction{0x01, 0x10}

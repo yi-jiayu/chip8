@@ -13,6 +13,75 @@ const (
 	TimestepBatch = 100 * time.Millisecond
 )
 
+// Sprites for the Chip-8 hexadecimal font
+var (
+	Sprites = []uint8{
+		// 0
+		0xF0, 0x90, 0x90, 0x90, 0xF0,
+		0, 0, 0, // padding
+
+		// 1
+		0x20, 0x60, 0x20, 0x20, 0x70,
+		0, 0, 0, // padding
+
+		// 2
+		0xF0, 0x10, 0xF0, 0x80, 0xF0,
+		0, 0, 0, // padding
+
+		// 3
+		0xF0, 0x10, 0xF0, 0x10, 0xF0,
+		0, 0, 0, // padding
+
+		// 4
+		0x90, 0x90, 0xF0, 0x10, 0x10,
+		0, 0, 0, // padding
+
+		// 5
+		0xF0, 0x80, 0xF0, 0x10, 0xF0,
+		0, 0, 0, // padding
+
+		// 6
+		0xF0, 0x80, 0xF0, 0x90, 0xF0,
+		0, 0, 0, // padding
+
+		// 7
+		0xF0, 0x10, 0x20, 0x40, 0x40,
+		0, 0, 0, // padding
+
+		// 8
+		0xF0, 0x90, 0xF0, 0x90, 0xF0,
+		0, 0, 0, // padding
+
+		// 9
+		0xF0, 0x90, 0xF0, 0x10, 0xF0,
+		0, 0, 0, // padding
+
+		// A
+		0xF0, 0x90, 0xF0, 0x90, 0x90,
+		0, 0, 0, // padding
+
+		// B
+		0xE0, 0x90, 0xE0, 0x90, 0xE0,
+		0, 0, 0, // padding
+
+		// C
+		0xF0, 0x80, 0x80, 0x80, 0xF0,
+		0, 0, 0, // padding
+
+		// D
+		0xE0, 0x90, 0x90, 0x90, 0xE0,
+		0, 0, 0, // padding
+
+		// E
+		0xF0, 0x80, 0xF0, 0x80, 0xF0,
+		0, 0, 0, // padding
+
+		// F
+		0xF0, 0x80, 0xF0, 0x80, 0x80,
+		0, 0, 0, // padding
+	}
+)
+
 // Interpreter contains the current state of the Chip-8 interpreter as well as its connected hardware.
 type Interpreter struct {
 	// The Chip-8 language is capable of accessing up to 4KB (4,096 bytes) of RAM.
@@ -70,6 +139,7 @@ func New(keypad <-chan uint16, display chan<- [32][8]uint8) *Interpreter {
 
 func (ip *Interpreter) Run() {
 	ip.stopch = make(chan struct{})
+	ip.loadSprites()
 
 	currentTime := time.Now()
 	var accum time.Duration
@@ -132,4 +202,8 @@ func (ip *Interpreter) rand() uint8 {
 	b := make([]byte, 1)
 	rand.Read(b)
 	return b[0]
+}
+
+func (ip *Interpreter) loadSprites() {
+	copy(ip.memory[:], Sprites)
 }

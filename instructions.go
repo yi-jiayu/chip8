@@ -368,8 +368,11 @@ func ADD_Fx1E(ip *Interpreter, instr instruction) {
 //
 // The value of I is set to the location for the hexadecimal sprite corresponding to the value of Vx.
 // See section 2.4, Display, for more information on the Chip-8 hexadecimal font.
+//
+// Implementation note: The sprite for digit x is loaded at address x << 3.
 func LD_Fx29(ip *Interpreter, instr instruction) {
-	// TODO: implement me
+	ip.i = uint16(ip.registers[instr.x()] << 3)
+	ip.pc++
 }
 
 // Fx33 - LD B, Vx
