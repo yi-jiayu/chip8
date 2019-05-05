@@ -203,8 +203,8 @@ func SUBN_8xy7(ip *Interpreter, instr instruction) {
 //
 // If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
 func SHL_8xyE(ip *Interpreter, instr instruction) {
-	ip.registers[VF] = ip.registers[instr.x()] & 0x80
-	ip.registers[instr.x()] >>= 2
+	ip.registers[VF] = ip.registers[instr.x()] >> 7 & 1
+	ip.registers[instr.x()] <<= 1
 	ip.pc++
 }
 
