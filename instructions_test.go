@@ -392,21 +392,11 @@ func TestLD_Fx29(t *testing.T) {
 		expected Interpreter
 	}{
 		{
-			name: "Address of sprite for 0",
-			ip: Interpreter{
-				memory: [4096]uint8{
-					0,
-					0xF0,
-					0x90,
-					0x90,
-					0x90,
-					0xF0,
-				},
-			},
+			name:  "Address of sprite for 0",
+			ip:    Interpreter{},
 			instr: newInstructionXYN(0, 0, 0),
 			expected: Interpreter{
-				registers: [16]uint8{0xE0},
-				pc:        1,
+				pc: 1,
 			},
 		},
 	}

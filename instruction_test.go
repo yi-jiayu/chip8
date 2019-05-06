@@ -1,6 +1,48 @@
 package main
 
-import "testing"
+import (
+	"testing"
+)
+
+func Test_instruction_addr(t *testing.T) {
+	instr := instruction{0x0A, 0xBC}
+	var want uint16 = 0xABC
+	if got := instr.addr(); got != want {
+		t.Errorf("want = 0x%X, got = 0x%X", want, got)
+	}
+}
+
+func Test_instruction_nibble(t *testing.T) {
+	instr := instruction{0x0A, 0xBC}
+	var want uint8 = 0xC
+	if got := instr.nibble(); got != want {
+		t.Errorf("want = 0x%X, got = 0x%X", want, got)
+	}
+}
+
+func Test_instruction_x(t *testing.T) {
+	instr := instruction{0x0A, 0xBC}
+	var want uint8 = 0xA
+	if got := instr.x(); got != want {
+		t.Errorf("want = 0x%X, got = 0x%X", want, got)
+	}
+}
+
+func Test_instruction_y(t *testing.T) {
+	instr := instruction{0x0A, 0xBC}
+	var want uint8 = 0xB
+	if got := instr.y(); got != want {
+		t.Errorf("want = 0x%X, got = 0x%X", want, got)
+	}
+}
+
+func Test_instruction_byte(t *testing.T) {
+	instr := instruction{0x0A, 0xBC}
+	var want uint8 = 0xBC
+	if got := instr.byte(); got != want {
+		t.Errorf("want = 0x%X, got = 0x%X", want, got)
+	}
+}
 
 func Test_instruction_opcode(t *testing.T) {
 	tests := []struct {
