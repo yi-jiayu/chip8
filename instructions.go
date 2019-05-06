@@ -36,7 +36,9 @@ func RET_00EE(ip *Interpreter, instr instruction) {
 // Jump to a machine code routine at nnn.
 //
 // This instruction is only used on the old computers on which Chip-8 was originally implemented. It is ignored by modern interpreters.
-func SYS_0nnn(ip *Interpreter, instr instruction) {}
+func SYS_0nnn(ip *Interpreter, instr instruction) {
+	ip.pc += instrLen
+}
 
 // 1nnn - JP addr
 // Jump to location nnn.
