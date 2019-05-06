@@ -381,7 +381,14 @@ func LD_Fx29(ip *Interpreter, instr instruction) {
 // The interpreter takes the decimal value of Vx, and places the hundreds digit in memory at location in I,
 // the tens digit at location I+1, and the ones digit at location I+2.
 func LD_Fx33(ip *Interpreter, instr instruction) {
-	// TODO: implement me
+	x := ip.registers[instr.x()]
+	ones := x % 10
+	tens := (x / 10) % 10
+	hundreds := x / 100
+	ip.memory[ip.i] = hundreds
+	ip.memory[ip.i+1] = tens
+	ip.memory[ip.i+2] = ones
+	ip.pc++
 }
 
 // Fx55 - LD [I], Vx
@@ -389,7 +396,7 @@ func LD_Fx33(ip *Interpreter, instr instruction) {
 //
 // The interpreter copies the values of registers V0 through Vx into memory, starting at the address in I.
 func LD_Fx55(ip *Interpreter, instr instruction) {
-	// TODO: implement me
+	copy(ip.memory[ip.i:], ip.registers[:instr.x()+1])
 }
 
 // Fx65 - LD Vx, [I]
@@ -397,5 +404,5 @@ func LD_Fx55(ip *Interpreter, instr instruction) {
 //
 // The interpreter reads values from memory starting at location I into registers V0 through Vx.
 func LD_Fx65(ip *Interpreter, instr instruction) {
-	// TODO: implement me
+	copy(ip.registers[:instr.x()+1], ip.memory[ip.i:])
 }
