@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+// memoryOffsetProgram is the memory address that Chip-8 programs begin at.
+const memoryOffsetProgram = 0x200
+
 const (
 	// TimestepSimulation is the clock speed of the Chip-8 emulator.
 	TimestepSimulation = 2 * time.Millisecond
@@ -141,6 +144,12 @@ func New(keypad <-chan uint16, display chan<- [32][8]uint8) *Interpreter {
 	}
 }
 
+// Load loads a Chip-8 program into memory.
+func (ip *Interpreter) Load(prog []byte) {
+	copy(ip.memory[memoryOffsetProgram:], prog)
+}
+
+// Run starts the Chip-8 interpreter.
 func (ip *Interpreter) Run() {
 	// initialise stop channel
 	ip.stopch = make(chan struct{})
