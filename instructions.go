@@ -188,7 +188,7 @@ func SUB_8xy5(ip *Interpreter, instr instruction) {
 // If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is divided by 2.
 func SHR_8xy6(ip *Interpreter, instr instruction) {
 	ip.registers[vF] = ip.registers[instr.x()] & 1
-	ip.registers[instr.x()] <<= 2
+	ip.registers[instr.x()] >>= 1
 	ip.pc += instrLen
 }
 
