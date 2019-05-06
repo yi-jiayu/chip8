@@ -31,6 +31,7 @@ func CLS_00E0(ip *Interpreter, instr instruction) {
 func RET_00EE(ip *Interpreter, instr instruction) {
 	ip.sp--
 	ip.pc = ip.stack[ip.sp]
+	ip.pc += instrLen
 }
 
 // 0nnn - SYS addr
