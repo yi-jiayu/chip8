@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 
@@ -39,6 +40,12 @@ func init() {
 }
 
 func main() {
+	// read rom data from stdin
+	prog, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	screen, err := tcell.NewScreen()
 	if err != nil {
 		log.Fatal(err)
@@ -61,6 +68,8 @@ func main() {
 	keych, keypad := NewKeypad(keymap)
 
 	ip := New(keypad, display)
+	// load program
+	ip.Load(prog)
 	go ip.Run()
 
 	events := make(chan tcell.Event)
