@@ -98,8 +98,12 @@ type Interpreter struct {
 	// dtset and stset are used for setting the current value of the delay and sound timers.
 	dtget <-chan uint8
 	stget <-chan uint8
+
 	dtset chan<- uint8
 	stset chan<- uint8
+
+	dtstop chan<- struct{}
+	ststop chan<- struct{}
 
 	// The program counter (PC) should be 16-bit, and is used to store the currently executing address.
 	pc uint16
@@ -138,8 +142,15 @@ func New(keypad <-chan uint16, display chan<- [32][8]uint8) *Interpreter {
 }
 
 func (ip *Interpreter) Run() {
+	// initialise stop channel
 	ip.stopch = make(chan struct{})
+
+	// load sprites
 	ip.loadSprites()
+
+	// start sound and delay timers
+	ip.stget, ip.stset, ip.ststop = newTimer()
+	ip.dtget, ip.dtset, ip.dtstop = newTimer()
 
 	currentTime := time.Now()
 	var accum time.Duration
@@ -157,6 +168,9 @@ func (ip *Interpreter) Run() {
 				accum -= TimestepSimulation
 			}
 		case <-ip.stopch:
+			// stop delay and sound timers
+			ip.ststop <- struct{}{}
+			ip.dtstop <- struct{}{}
 			return
 		}
 	}
