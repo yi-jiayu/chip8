@@ -57,10 +57,10 @@ func NewKeypad(keymap Keymap) (chan<- rune, <-chan uint16) {
 			select {
 			case <-ticker.C:
 				// reset pressed keys every KeyResetInterval
-				state &= 0
+				state = 0
 			case key := <-keych:
 				if mask, ok := keymap[key]; ok {
-					state &= mask
+					state |= mask
 				}
 			case statech <- state:
 			}
