@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
 )
@@ -162,6 +163,9 @@ func (ip *Interpreter) Run() {
 	ip.stget, ip.stset, ip.ststop = newTimer()
 	ip.dtget, ip.dtset, ip.dtstop = newTimer()
 
+	// set PC to program start address
+	ip.pc = memoryOffsetProgram
+
 	currentTime := time.Now()
 	var accum time.Duration
 
@@ -207,7 +211,9 @@ func (ip *Interpreter) currentInstr() instruction {
 
 func (ip *Interpreter) step() {
 	instr := ip.currentInstr()
-	switch instr.opcode() {
+	op := instr.opcode()
+	log.Printf("opcode: %d, instr: 0x%02X%02X, pc: 0x%02X", op, instr.hi, instr.lo, ip.pc)
+	switch op {
 	case OpCLS_00E0:
 		CLS_00E0(ip, instr)
 	case OpRET_00EE:
@@ -279,7 +285,7 @@ func (ip *Interpreter) step() {
 	case OpLD_Fx65:
 		LD_Fx65(ip, instr)
 	default:
-		panic(fmt.Sprintf("illegal opcode: 0x%X", instr.opcode()))
+		panic(fmt.Sprintf("illegal opcode: 0x%X", op))
 	}
 }
 
