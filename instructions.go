@@ -404,6 +404,7 @@ func LD_Fx33(ip *Interpreter, instr instruction) {
 // The interpreter copies the values of registers V0 through Vx into memory, starting at the address in I.
 func LD_Fx55(ip *Interpreter, instr instruction) {
 	copy(ip.memory[ip.i:], ip.registers[:instr.x()+1])
+	ip.pc += instrLen
 }
 
 // Fx65 - LD Vx, [I]
@@ -412,4 +413,5 @@ func LD_Fx55(ip *Interpreter, instr instruction) {
 // The interpreter reads values from memory starting at location I into registers V0 through Vx.
 func LD_Fx65(ip *Interpreter, instr instruction) {
 	copy(ip.registers[:instr.x()+1], ip.memory[ip.i:])
+	ip.pc += instrLen
 }
