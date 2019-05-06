@@ -72,14 +72,6 @@ func main() {
 	ip.Load(prog)
 	go ip.Run()
 
-	events := make(chan tcell.Event)
-	go func() {
-		for {
-			ev := screen.PollEvent()
-			events <- ev
-		}
-	}()
-
 	screen.Show()
 
 	// start display loop
@@ -90,7 +82,8 @@ func main() {
 		}
 	}()
 
-	for ev := range events {
+	for {
+		ev := screen.PollEvent()
 		if key, ok := ev.(*tcell.EventKey); ok {
 			if key.Key() == tcell.KeyCtrlC {
 				ip.Stop()
