@@ -59,8 +59,8 @@ func TestSUB_8xy5(t *testing.T) {
 			},
 			instr: newInstructionXYN(0, 1, 0),
 			expected: Interpreter{
-				registers: registers{[16]uint8{2, 1}}.set(VF, 1).r,
-				pc:        1,
+				registers: registers{[16]uint8{2, 1}}.set(vF, 1).r,
+				pc:        instrLen,
 			},
 		},
 		{
@@ -70,8 +70,8 @@ func TestSUB_8xy5(t *testing.T) {
 			},
 			instr: newInstructionXYN(0, 1, 0),
 			expected: Interpreter{
-				registers: registers{[16]uint8{0, 3}}.set(VF, 1).r,
-				pc:        1,
+				registers: registers{[16]uint8{0, 3}}.set(vF, 1).r,
+				pc:        instrLen,
 			},
 		},
 		{
@@ -82,7 +82,7 @@ func TestSUB_8xy5(t *testing.T) {
 			instr: newInstructionXYN(0, 1, 0),
 			expected: Interpreter{
 				registers: [16]uint8{0xFE, 3},
-				pc:        1,
+				pc:        instrLen,
 			},
 		},
 	}
@@ -111,7 +111,7 @@ func TestSHL_8xyE(t *testing.T) {
 			instr: newInstructionXYN(0, 0, 0),
 			expected: Interpreter{
 				registers: [16]uint8{0xE0},
-				pc:        1,
+				pc:        instrLen,
 			},
 		},
 		{
@@ -121,8 +121,8 @@ func TestSHL_8xyE(t *testing.T) {
 			},
 			instr: newInstructionXYN(0, 0, 0),
 			expected: Interpreter{
-				registers: registers{[16]uint8{0xE0}}.set(VF, 1).r,
-				pc:        1,
+				registers: registers{[16]uint8{0xE0}}.set(vF, 1).r,
+				pc:        instrLen,
 			},
 		},
 	}
@@ -169,7 +169,7 @@ func TestDRW_Dxyn(t *testing.T) {
 					{0x90},
 					{0x90},
 				},
-				pc: 1,
+				pc: 2,
 			},
 		},
 		{
@@ -200,7 +200,7 @@ func TestDRW_Dxyn(t *testing.T) {
 					{0x90},
 					{0xF0},
 				},
-				pc: 1,
+				pc: 2,
 			},
 		},
 		{
@@ -227,7 +227,7 @@ func TestDRW_Dxyn(t *testing.T) {
 					0x90,
 					0xF0,
 				},
-				registers: registers{}.set(VF, 1).r,
+				registers: registers{}.set(vF, 1).r,
 				display: [32][8]uint8{
 					{0x0F},
 					{0x90},
@@ -235,7 +235,7 @@ func TestDRW_Dxyn(t *testing.T) {
 					{0x90},
 					{0xF0},
 				},
-				pc: 1,
+				pc: 2,
 			},
 		},
 		{
@@ -268,7 +268,7 @@ func TestDRW_Dxyn(t *testing.T) {
 				}}.
 					set(30, [8]uint8{0xF0}).
 					set(31, [8]uint8{0x90}).d,
-				pc: 1,
+				pc: 2,
 			},
 		},
 		{
@@ -301,7 +301,7 @@ func TestDRW_Dxyn(t *testing.T) {
 					{0x2, 0x40},
 					{0x3, 0xC0},
 				},
-				pc: 1,
+				pc: 2,
 			},
 		},
 		{
@@ -329,7 +329,7 @@ func TestDRW_Dxyn(t *testing.T) {
 					0x90,
 					0xF0,
 				},
-				registers: registers{r: [16]uint8{6}}.set(VF, 1).r,
+				registers: registers{r: [16]uint8{6}}.set(vF, 1).r,
 				display: [32][8]uint8{
 					{0xFC, 0xC0},
 					{0x2, 0x40},
@@ -337,7 +337,7 @@ func TestDRW_Dxyn(t *testing.T) {
 					{0x2, 0x40},
 					{0x3, 0xC0},
 				},
-				pc: 1,
+				pc: 2,
 			},
 		},
 		{
@@ -370,7 +370,7 @@ func TestDRW_Dxyn(t *testing.T) {
 					{0x40, 00, 00, 00, 00, 00, 00, 0x2},
 					{0xC0, 00, 00, 00, 00, 00, 00, 0x3},
 				},
-				pc: 1,
+				pc: 2,
 			},
 		},
 	}
@@ -396,7 +396,7 @@ func TestLD_Fx29(t *testing.T) {
 			ip:    Interpreter{},
 			instr: newInstructionXYN(0, 0, 0),
 			expected: Interpreter{
-				pc: 1,
+				pc: 2,
 			},
 		},
 	}

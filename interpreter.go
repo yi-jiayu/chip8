@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -278,7 +279,7 @@ func (ip *Interpreter) step() {
 	case OpLD_Fx65:
 		LD_Fx65(ip, instr)
 	default:
-		panic("illegal opcode!")
+		panic(fmt.Sprintf("illegal opcode: 0x%X", instr.opcode()))
 	}
 }
 

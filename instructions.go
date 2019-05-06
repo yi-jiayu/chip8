@@ -4,7 +4,11 @@ import (
 	"math/bits"
 )
 
-const VF = 0xF
+// instrLen is the length of a single instruction in bytes.
+const instrLen = 2
+
+// vF is the address of register VF
+const vF = 0xF
 
 // 00E0 - CLS
 // Clear the display.
@@ -14,7 +18,7 @@ func CLS_00E0(ip *Interpreter, instr instruction) {
 			ip.display[i][j] = 0
 		}
 	}
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // 00EE - RET
@@ -60,9 +64,9 @@ func CALL_2nnn(ip *Interpreter, instr instruction) {
 // The interpreter compares register Vx to kk, and if they are equal, increments the program counter by 2.
 func SE_3xkk(ip *Interpreter, instr instruction) {
 	if ip.registers[instr.x()] == instr.byte() {
-		ip.pc++
+		ip.pc += instrLen
 	}
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // 4xkk - SNE Vx, byte
@@ -71,9 +75,9 @@ func SE_3xkk(ip *Interpreter, instr instruction) {
 // The interpreter compares register Vx to kk, and if they are not equal, increments the program counter by 2.
 func SNE_4xkk(ip *Interpreter, instr instruction) {
 	if ip.registers[instr.x()] != instr.byte() {
-		ip.pc++
+		ip.pc += instrLen
 	}
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // 5xy0 - SE Vx, Vy
@@ -82,9 +86,9 @@ func SNE_4xkk(ip *Interpreter, instr instruction) {
 // The interpreter compares register Vx to register Vy, and if they are equal, increments the program counter by 2.
 func SE_5xy0(ip *Interpreter, instr instruction) {
 	if ip.registers[instr.x()] == ip.registers[instr.y()] {
-		ip.pc++
+		ip.pc += instrLen
 	}
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // 6xkk - LD Vx, byte
@@ -93,7 +97,7 @@ func SE_5xy0(ip *Interpreter, instr instruction) {
 // The interpreter puts the value kk into register Vx.
 func LD_6xkk(ip *Interpreter, instr instruction) {
 	ip.registers[instr.x()] = instr.byte()
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // 7xkk - ADD Vx, byte
@@ -102,7 +106,7 @@ func LD_6xkk(ip *Interpreter, instr instruction) {
 // Adds the value kk to the value of register Vx, then stores the result in Vx.
 func ADD_7xkk(ip *Interpreter, instr instruction) {
 	ip.registers[instr.x()] += instr.byte()
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // 8xy0 - LD Vx, Vy
@@ -111,7 +115,7 @@ func ADD_7xkk(ip *Interpreter, instr instruction) {
 // Stores the value of register Vy in register Vx.
 func LD_8xy0(ip *Interpreter, instr instruction) {
 	ip.registers[instr.x()] = ip.registers[instr.y()]
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // 8xy1 - OR Vx, Vy
@@ -122,7 +126,7 @@ func LD_8xy0(ip *Interpreter, instr instruction) {
 // then the same bit in the result is also 1. Otherwise, it is 0.
 func OR_8xy1(ip *Interpreter, instr instruction) {
 	ip.registers[instr.x()] |= ip.registers[instr.y()]
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // 8xy2 - AND Vx, Vy
@@ -133,7 +137,7 @@ func OR_8xy1(ip *Interpreter, instr instruction) {
 // then the same bit in the result is also 1. Otherwise, it is 0.
 func AND_8xy2(ip *Interpreter, instr instruction) {
 	ip.registers[instr.x()] &= ip.registers[instr.y()]
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // 8xy3 - XOR Vx, Vy
@@ -144,7 +148,7 @@ func AND_8xy2(ip *Interpreter, instr instruction) {
 // then the corresponding bit in the result is set to 1. Otherwise, it is 0.
 func XOR_8xy3(ip *Interpreter, instr instruction) {
 	ip.registers[instr.x()] ^= ip.registers[instr.y()]
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // 8xy4 - ADD Vx, Vy
@@ -156,8 +160,8 @@ func ADD_8xy4(ip *Interpreter, instr instruction) {
 	x := instr.x()
 	sum, carry := bits.Add(uint(ip.registers[x]), uint(ip.registers[instr.y()]), 0)
 	ip.registers[x] = uint8(sum)
-	ip.registers[VF] = uint8(carry)
-	ip.pc++
+	ip.registers[vF] = uint8(carry)
+	ip.pc += instrLen
 }
 
 // 8xy5 - SUB Vx, Vy
@@ -171,8 +175,8 @@ func SUB_8xy5(ip *Interpreter, instr instruction) {
 	y := instr.y()
 	diff, borrow := bits.Sub(uint(ip.registers[x]), uint(ip.registers[y]), 0)
 	ip.registers[x] = uint8(diff)
-	ip.registers[VF] = 1 - uint8(borrow)
-	ip.pc++
+	ip.registers[vF] = 1 - uint8(borrow)
+	ip.pc += instrLen
 }
 
 // 8xy6 - SHR Vx {, Vy}
@@ -180,9 +184,9 @@ func SUB_8xy5(ip *Interpreter, instr instruction) {
 //
 // If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is divided by 2.
 func SHR_8xy6(ip *Interpreter, instr instruction) {
-	ip.registers[VF] = ip.registers[instr.x()] & 1
+	ip.registers[vF] = ip.registers[instr.x()] & 1
 	ip.registers[instr.x()] <<= 2
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // 8xy7 - SUBN Vx, Vy
@@ -194,8 +198,8 @@ func SUBN_8xy7(ip *Interpreter, instr instruction) {
 	y := instr.y()
 	diff, borrow := bits.Sub(uint(ip.registers[y]), uint(ip.registers[x]), 0)
 	ip.registers[x] = uint8(diff)
-	ip.registers[VF] = 1 - uint8(borrow)
-	ip.pc++
+	ip.registers[vF] = 1 - uint8(borrow)
+	ip.pc += instrLen
 }
 
 // 8xyE - SHL Vx {, Vy}
@@ -203,9 +207,9 @@ func SUBN_8xy7(ip *Interpreter, instr instruction) {
 //
 // If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
 func SHL_8xyE(ip *Interpreter, instr instruction) {
-	ip.registers[VF] = ip.registers[instr.x()] >> 7 & 1
+	ip.registers[vF] = ip.registers[instr.x()] >> 7 & 1
 	ip.registers[instr.x()] <<= 1
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // 9xy0 - SNE Vx, Vy
@@ -214,9 +218,9 @@ func SHL_8xyE(ip *Interpreter, instr instruction) {
 // The values of Vx and Vy are compared, and if they are not equal, the program counter is increased by 2.
 func SNE_9xy0(ip *Interpreter, instr instruction) {
 	if ip.registers[instr.x()] != ip.registers[instr.y()] {
-		ip.pc++
+		ip.pc += instrLen
 	}
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // Annn - LD I, addr
@@ -225,7 +229,7 @@ func SNE_9xy0(ip *Interpreter, instr instruction) {
 // The value of register I is set to nnn.
 func LD_Annn(ip *Interpreter, instr instruction) {
 	ip.i = instr.addr()
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // Bnnn - JP V0, addr
@@ -244,7 +248,7 @@ func JP_Bnnn(ip *Interpreter, instr instruction) {
 func RND_Cxkk(ip *Interpreter, instr instruction) {
 	r := ip.rand()
 	ip.registers[instr.x()] = r & instr.byte()
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // Dxyn - DRW Vx, Vy, nibble
@@ -279,12 +283,12 @@ func DRW_Dxyn(ip *Interpreter, instr instruction) {
 		}
 	}
 	if collision > 0 {
-		ip.registers[VF] = 1
+		ip.registers[vF] = 1
 	} else {
-		ip.registers[VF] = 0
+		ip.registers[vF] = 0
 	}
 	ip.render()
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // Ex9E - SKP Vx
@@ -296,9 +300,9 @@ func SKP_Ex9E(ip *Interpreter, instr instruction) {
 	var mask uint16 = 1 << key
 	keypad := <-ip.keypadch
 	if keypad&mask > 0 {
-		ip.pc++
+		ip.pc += instrLen
 	}
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // ExA1 - SKNP Vx
@@ -310,9 +314,9 @@ func SKNP_ExA1(ip *Interpreter, instr instruction) {
 	var mask uint16 = 1 << key
 	keypad := <-ip.keypadch
 	if keypad&mask == 0 {
-		ip.pc++
+		ip.pc += instrLen
 	}
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // Fx07 - LD Vx, DT
@@ -321,7 +325,7 @@ func SKNP_ExA1(ip *Interpreter, instr instruction) {
 // The value of DT is placed into Vx.
 func LD_Fx07(ip *Interpreter, instr instruction) {
 	ip.registers[instr.x()] = <-ip.dtget
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // Fx0A - LD Vx, K
@@ -333,7 +337,7 @@ func LD_Fx0A(ip *Interpreter, instr instruction) {
 	zeros := bits.LeadingZeros16(keypad)
 	if zeros < 16 {
 		ip.registers[instr.x()] = uint8(0xF - zeros)
-		ip.pc++
+		ip.pc += instrLen
 	}
 }
 
@@ -343,7 +347,7 @@ func LD_Fx0A(ip *Interpreter, instr instruction) {
 // DT is set equal to the value of Vx.
 func LD_Fx15(ip *Interpreter, instr instruction) {
 	ip.dtset <- ip.registers[instr.x()]
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // Fx18 - LD ST, Vx
@@ -352,7 +356,7 @@ func LD_Fx15(ip *Interpreter, instr instruction) {
 // ST is set equal to the value of Vx.
 func LD_Fx18(ip *Interpreter, instr instruction) {
 	ip.stset <- ip.registers[instr.x()]
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // Fx1E - ADD I, Vx
@@ -361,7 +365,7 @@ func LD_Fx18(ip *Interpreter, instr instruction) {
 // The values of I and Vx are added, and the results are stored in I.
 func ADD_Fx1E(ip *Interpreter, instr instruction) {
 	ip.i += uint16(ip.registers[instr.x()])
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // Fx29 - LD F, Vx
@@ -373,7 +377,7 @@ func ADD_Fx1E(ip *Interpreter, instr instruction) {
 // Implementation note: The sprite for digit x is loaded at address x << 3.
 func LD_Fx29(ip *Interpreter, instr instruction) {
 	ip.i = uint16(ip.registers[instr.x()] << 3)
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // Fx33 - LD B, Vx
@@ -389,7 +393,7 @@ func LD_Fx33(ip *Interpreter, instr instruction) {
 	ip.memory[ip.i] = hundreds
 	ip.memory[ip.i+1] = tens
 	ip.memory[ip.i+2] = ones
-	ip.pc++
+	ip.pc += instrLen
 }
 
 // Fx55 - LD [I], Vx
