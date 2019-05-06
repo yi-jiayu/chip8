@@ -28,8 +28,8 @@ func CLS_00E0(ip *Interpreter, instr instruction) {
 //
 // Implementation note: we're using a 0-based stack pointer, so we decrement the stack pointer first.
 func RET_00EE(ip *Interpreter, instr instruction) {
-	ip.stackptr--
-	ip.pc = ip.stack[ip.stackptr]
+	ip.sp--
+	ip.pc = ip.stack[ip.sp]
 }
 
 // 0nnn - SYS addr
@@ -55,8 +55,8 @@ func JP_1nnn(ip *Interpreter, instr instruction) {
 //
 // Implementation note: we're using a 0-based stack pointer, so we decrement the stack pointer later.
 func CALL_2nnn(ip *Interpreter, instr instruction) {
-	ip.stack[ip.stackptr] = ip.pc
-	ip.stackptr++
+	ip.stack[ip.sp] = ip.pc
+	ip.sp++
 	ip.pc = instr.addr()
 }
 
