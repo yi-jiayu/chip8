@@ -173,28 +173,89 @@ func (ip *Interpreter) render() {
 	default:
 	}
 }
-func (ip *Interpreter) step() {
-	// mock instructions which just move a cursor across the screen
-	if ip.pc == 0 {
-		ip.registers[1] = 7
-		ip.registers[2] = 1
-		ip.pc = 1
+
+func (ip *Interpreter) currentInstr() instruction {
+	return instruction{
+		hi: ip.memory[ip.pc],
+		lo: ip.memory[ip.pc+1],
 	}
-	ip.registers[0]++
-	if ip.registers[0] == 0 {
-		section := ip.registers[1]
-		val := ip.registers[2]
-		if val != 1 {
-			val >>= 1
-		} else {
-			ip.display[0][section] = 0
-			section = (section + 1) % 8
-			ip.registers[1] = section
-			val = 0x80
-		}
-		ip.registers[2] = val
-		ip.display[0][section] = val
-		ip.render()
+}
+
+func (ip *Interpreter) step() {
+	instr := ip.currentInstr()
+	switch instr.opcode() {
+	case OpCLS_00E0:
+		CLS_00E0(ip, instr)
+	case OpRET_00EE:
+		RET_00EE(ip, instr)
+	case OpSYS_0nnn:
+		SYS_0nnn(ip, instr)
+	case OpJP_1nnn:
+		JP_1nnn(ip, instr)
+	case OpCALL_2nnn:
+		CALL_2nnn(ip, instr)
+	case OpSE_3xkk:
+		SE_3xkk(ip, instr)
+	case OpSNE_4xkk:
+		SNE_4xkk(ip, instr)
+	case OpSE_5xy0:
+		SE_5xy0(ip, instr)
+	case OpLD_6xkk:
+		LD_6xkk(ip, instr)
+	case OpADD_7xkk:
+		ADD_7xkk(ip, instr)
+	case OpLD_8xy0:
+		LD_8xy0(ip, instr)
+	case OpOR_8xy1:
+		OR_8xy1(ip, instr)
+	case OpAND_8xy2:
+		AND_8xy2(ip, instr)
+	case OpXOR_8xy3:
+		XOR_8xy3(ip, instr)
+	case OpADD_8xy4:
+		ADD_8xy4(ip, instr)
+	case OpSUB_8xy5:
+		SUB_8xy5(ip, instr)
+	case OpSHR_8xy6:
+		SHR_8xy6(ip, instr)
+	case OpSUBN_8xy7:
+		SUBN_8xy7(ip, instr)
+	case OpSHL_8xyE:
+		SHL_8xyE(ip, instr)
+	case OpSNE_9xy0:
+		SNE_9xy0(ip, instr)
+	case OpLD_Annn:
+		LD_Annn(ip, instr)
+	case OpJP_Bnnn:
+		JP_Bnnn(ip, instr)
+	case OpRND_Cxkk:
+		RND_Cxkk(ip, instr)
+	case OpDRW_Dxyn:
+		DRW_Dxyn(ip, instr)
+	case OpSKP_Ex9E:
+		SKP_Ex9E(ip, instr)
+	case OpSKNP_ExA1:
+		SKNP_ExA1(ip, instr)
+	case OpLD_Fx07:
+		LD_Fx07(ip, instr)
+	case OpLD_Fx0A:
+		LD_Fx0A(ip, instr)
+	case OpLD_Fx15:
+		LD_Fx15(ip, instr)
+	case OpLD_Fx18:
+		LD_Fx18(ip, instr)
+	case OpADD_Fx1E:
+		ADD_Fx1E(ip, instr)
+	case OpLD_Fx29:
+		LD_Fx29(ip, instr)
+	case OpLD_Fx33:
+		LD_Fx33(ip, instr)
+	case OpLD_Fx55:
+		LD_Fx55(ip, instr)
+	case OpLD_Fx65:
+		LD_Fx65(ip, instr)
+	default:
+		panic("illegal opcode!")
 	}
 }
 
