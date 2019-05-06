@@ -82,22 +82,23 @@ func main() {
 
 	screen.Show()
 
-loop:
-	for {
-		select {
-		case ev := <-events:
-			if key, ok := ev.(*tcell.EventKey); ok {
-				if key.Key() == tcell.KeyCtrlC {
-					ip.Stop()
-					break loop
-				}
-				if key.Key() == tcell.KeyRune {
-					keych <- key.Rune()
-				}
-			}
-		case display := <-display:
+	// start display loop
+	go func() {
+		for display := range display {
 			render(screen, display)
 			screen.Show()
+		}
+	}()
+
+	for ev := range events {
+		if key, ok := ev.(*tcell.EventKey); ok {
+			if key.Key() == tcell.KeyCtrlC {
+				ip.Stop()
+				break
+			}
+			if key.Key() == tcell.KeyRune {
+				keych <- key.Rune()
+			}
 		}
 	}
 }

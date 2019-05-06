@@ -182,6 +182,7 @@ func (ip *Interpreter) Run() {
 			// stop delay and sound timers
 			ip.ststop <- struct{}{}
 			ip.dtstop <- struct{}{}
+			close(ip.displaych)
 			return
 		}
 	}
