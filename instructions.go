@@ -283,6 +283,7 @@ func DRW_Dxyn(ip *Interpreter, instr instruction) {
 	} else {
 		ip.registers[VF] = 0
 	}
+	ip.render()
 	ip.pc++
 }
 
