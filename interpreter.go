@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"math/rand"
 	"time"
 )
@@ -210,7 +209,7 @@ func (ip *Interpreter) currentInstr() instruction {
 func (ip *Interpreter) step() {
 	instr := ip.currentInstr()
 	op := instr.opcode()
-	log.Printf("opcode: %d, instr: 0x%02X%02X, pc: 0x%02X", op, instr.hi, instr.lo, ip.pc)
+	// log.Printf("opcode: %d, instr: 0x%02X%02X, pc: 0x%02X", op, instr.hi, instr.lo, ip.pc)
 	switch op {
 	case OpCLS_00E0:
 		CLS_00E0(ip, instr)
