@@ -49,7 +49,7 @@ type instruction struct {
 }
 
 func (instr instruction) addr() uint16 {
-	return uint16(instr.hi&0x0f)<<8 + uint16(instr.lo)
+	return uint16(instr.hi&0x0f)<<8 | uint16(instr.lo)
 }
 
 func (instr instruction) nibble() uint8 {
