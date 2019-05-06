@@ -272,7 +272,7 @@ func DRW_Dxyn(ip *Interpreter, instr instruction) {
 	var collision uint8
 	for i := uint8(0); i < n; i++ {
 		rowIdx := (y + i) & 0x1F
-		colGrpIdx := x >> 3
+		colGrpIdx := (x >> 3) & 0x7
 		rem := x & 0x7
 		if rem > 0 {
 			collision |= ip.display[rowIdx][colGrpIdx] & (sprite[i] >> rem)
