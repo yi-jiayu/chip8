@@ -90,7 +90,69 @@ func (instr instruction) opcode() opcode {
 		return OpSNE_4xkk
 	case 5:
 		return OpSE_5xy0
-	default:
-		panic("illegal opcode")
+	case 6:
+		return OpLD_6xkk
+	case 7:
+		return OpADD_7xkk
+	case 8:
+		switch instr.lo & 0xF {
+		case 0:
+			return OpLD_8xy0
+		case 1:
+			return OpOR_8xy1
+		case 2:
+			return OpAND_8xy2
+		case 3:
+			return OpXOR_8xy3
+		case 4:
+			return OpADD_8xy4
+		case 5:
+			return OpSUB_8xy5
+		case 6:
+			return OpSHR_8xy6
+		case 7:
+			return OpSUBN_8xy7
+		case 0xE:
+			return OpSHL_8xyE
+		}
+	case 9:
+		return OpSNE_9xy0
+	case 0xA:
+		return OpLD_Annn
+	case 0xB:
+		return OpJP_Bnnn
+	case 0xC:
+		return OpRND_Cxkk
+	case 0xD:
+		return OpDRW_Dxyn
+	case 0xE:
+		switch instr.lo {
+		case 0x9E:
+			return OpSKP_Ex9E
+		case 0xA1:
+			return OpSKNP_ExA1
+		}
+	case 0xF:
+		switch instr.lo {
+		case 0x07:
+			return OpLD_Fx07
+		case 0x0A:
+			return OpLD_Fx0A
+		case 0x15:
+			return OpLD_Fx15
+		case 0x18:
+			return OpLD_Fx18
+		case 0x1E:
+			return OpADD_Fx1E
+		case 0x29:
+			return OpLD_Fx29
+		case 0x33:
+			return OpLD_Fx33
+		case 0x55:
+			return OpLD_Fx55
+		case 0x65:
+			return OpLD_Fx65
+		}
 	}
+	return 0xFF
 }
