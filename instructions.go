@@ -18,6 +18,7 @@ func CLS_00E0(ip *Interpreter, instr instruction) {
 			ip.display[i][j] = 0
 		}
 	}
+	ip.render()
 	ip.pc += instrLen
 }
 
